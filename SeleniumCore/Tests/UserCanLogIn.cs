@@ -13,7 +13,6 @@ namespace SeleniumCore.Tests
         [TestMethod]
         public void UserCanLogInTest()
         {
-
             _loginSteps.PerformLogin(Constants.USER_EMAIL, Constants.USER_PASSWORD);
             _loginSteps.CheckThatUserNameIsDisplayed(Constants.USER_NAME).Should().Be(Constants.USER_NAME);
         }

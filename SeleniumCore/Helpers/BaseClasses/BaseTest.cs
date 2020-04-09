@@ -13,8 +13,8 @@ namespace SeleniumCore.Helpers.BaseClasses
     public class BaseTest
     {
 
-        private ITestWebDriver _testWebDriver;
-        protected IWebDriver Driver => _testWebDriver?.Driver;
+        private IWebDriverResolver _webDriverResolver;
+        protected IWebDriver Driver => _webDriverResolver?.Driver;
 
         private IContainer _container;
 
@@ -33,11 +33,56 @@ namespace SeleniumCore.Helpers.BaseClasses
         [TestInitialize]
         public void TestInitialize()
         {
+            BuildContainer();
             InitializeDriver();
+            ResolveSteps();
             _guid = Guid.NewGuid().ToString().Substring(0, 25);
-            _loginSteps = new LoginSteps(Driver);
         }
 
+        private void BuildContainer()
+        {
+
+            if (_container == null)
+            {
+                var builder = new ContainerBuilder();
+                var assembly = Assembly.GetExecutingAssembly();
+
+                // Repositories
+                builder.RegisterAssemblyTypes(assembly)
+                    .Where(t => t.Name.EndsWith("TestDriver", StringComparison.OrdinalIgnoreCase))
+                    .Named<IWebDriverResolver>(t => t.Name.ToUpperInvariant())
+                    .SingleInstance();
+
+                builder.RegisterType<WebDriverResolver>().As<IWebDriverResolver>();
+
+                builder.RegisterAssemblyTypes(assembly)
+                    .Where(t => t.Name.EndsWith("Page", StringComparison.OrdinalIgnoreCase))
+                    .SingleInstance();
+
+                builder.RegisterAssemblyTypes(assembly)
+                    .Where(t => t.Name.EndsWith("Steps", StringComparison.OrdinalIgnoreCase))
+                    .SingleInstance();
+
+                _container = builder.Build();
+            }
+
+        }
+        public void InitializeDriver()
+        {
+            _webDriverResolver = _container.Resolve<IWebDriverResolver>();
+
+            //configure driver properties
+            //Driver.Manage().Window.Size = new Size(1024, 768);
+            Driver.Manage().Window.Maximize();
+            Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(Constants.LOAD_TIME_SECONDS);
+        }
+
+        private void ResolveSteps()
+        {
+            _loginSteps = _container.Resolve<LoginSteps>();
+        }
+
+        
         private TestContext testContextInstance;
 
         public TestContext TestContext
@@ -50,39 +95,6 @@ namespace SeleniumCore.Helpers.BaseClasses
             {
                 testContextInstance = value;
             }
-        }
-        protected IContainer Container
-        {
-            get
-            {
-                if (_container == null)
-                {
-                    var builder = new ContainerBuilder();
-                    var assembly = Assembly.GetExecutingAssembly();
-
-                    // Repositories
-                    builder.RegisterAssemblyTypes(assembly)
-                        .Where(t => t.Name.EndsWith("TestDriver", StringComparison.OrdinalIgnoreCase))
-                        .Named<ITestWebDriver>(t => t.Name.ToUpperInvariant())
-                        .InstancePerDependency();
-
-                    _container = builder.Build();
-                }
-
-                return _container;
-            }
-        }
-
-
-
-        public void InitializeDriver()
-        {
-            _testWebDriver = Container.ResolveNamed<ITestWebDriver>((Constants.BROWSER + "TestDriver").ToUpperInvariant());
-
-            //configure driver properties
-            //Driver.Manage().Window.Size = new Size(1024, 768);
-            Driver.Manage().Window.Maximize();
-            Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(Constants.LOAD_TIME_SECONDS);
         }
 
         [TestCleanup]
@@ -98,7 +110,7 @@ namespace SeleniumCore.Helpers.BaseClasses
                 TestContext.AddResultFile(path);
             }
 
-            _testWebDriver.Driver.Quit();
+            Driver.Quit();
         }
 
     }

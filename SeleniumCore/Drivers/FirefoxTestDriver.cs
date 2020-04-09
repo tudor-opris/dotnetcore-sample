@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace SeleniumCore.Drivers
 {
-    public class FirefoxTestDriver : BaseTestDriver, ITestWebDriver
+    public class FirefoxTestDriver : BaseTestDriver, IWebDriverResolver
     {
         public string DateFormat => "dd MMMM yyyy";
 

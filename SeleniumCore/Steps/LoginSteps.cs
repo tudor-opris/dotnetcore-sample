@@ -1,25 +1,27 @@
 ﻿using OpenQA.Selenium;
 using SeleniumCore.Helpers.BaseClasses;
 using SeleniumCore.Helpers;
+using SeleniumCore.Pages;
 
 namespace SeleniumCore.Steps
 {
     public class LoginSteps : BaseSteps
     {
-        public LoginSteps(IWebDriver driver) : base(driver)
+        private LoginPage _loginPage;
+        public LoginSteps(LoginPage loginPage)
         {
-            Driver = driver;
+            _loginPage = loginPage;
         }
 
         public void PerformLogin(string userEmail, string password)
         {
-            NavigateTo(Constants.BASE_URL);
-            LoginPage.PerformLogin(userEmail, password);
+            _loginPage.NavigateTo(Constants.BASE_URL);
+            _loginPage.PerformLogin(userEmail, password);
         }
 
         public string CheckThatUserNameIsDisplayed(string userName)
         {
-            return LoginPage.CheckThatUserNameIsDisplayed(userName);
+            return _loginPage.CheckThatUserNameIsDisplayed(userName);
         }
     }
 }

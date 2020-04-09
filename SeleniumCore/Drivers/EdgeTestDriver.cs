@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace SeleniumCore.Drivers
 {
-    public class EdgeTestDriver : BaseTestDriver, ITestWebDriver
+    public class EdgeTestDriver : BaseTestDriver, IWebDriverResolver
     {
         public string DateFormat => "dd MMMM yyyy";
 

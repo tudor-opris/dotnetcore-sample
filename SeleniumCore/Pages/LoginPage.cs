@@ -5,14 +5,14 @@ using System.Threading;
 using OpenQA.Selenium;
 using SeleniumCore.Helpers;
 using SeleniumCore.Helpers.BaseClasses;
+using SeleniumCore.Helpers.Interfaces;
 
 namespace SeleniumCore.Pages
 {
     public class LoginPage : BasePage
     {
-        public LoginPage(IWebDriver driver) : base(driver)
+        public LoginPage(IWebDriverResolver webDriverResolver) : base(webDriverResolver)
         {
-            Driver = driver;
         }
 
         #region Selectors

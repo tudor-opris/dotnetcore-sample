@@ -10,7 +10,7 @@ using System.Reflection;
 namespace SeleniumCore.Drivers
 {
 
-    public class InternetExplorerTestDriver : BaseTestDriver, ITestWebDriver
+    public class InternetExplorerTestDriver : BaseTestDriver, IWebDriverResolver
     {
         public string DateFormat => null;
 
